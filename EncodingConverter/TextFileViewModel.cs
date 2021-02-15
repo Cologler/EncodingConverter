@@ -91,6 +91,8 @@ namespace EncodingConverter
         {
             if (targetEncoding is null)
                 throw new ArgumentNullException(nameof(targetEncoding));
+            if (!this.IsEnabledConvert)
+                return;
             this.IsEnabledConvert = false;
             var path = this.Path;
             await Task.Run(() =>
