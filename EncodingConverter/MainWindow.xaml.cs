@@ -78,9 +78,9 @@ namespace EncodingConverter
             await ((TextFileViewModel)((FrameworkElement)sender).DataContext).ConvertAsync(this.SelectedEncoding, this.ToNewFile);
         }
 
-        private void ConvertAllButton_Click(object sender, RoutedEventArgs e)
+        private void ConvertSelectedButton_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var item in this.Items.Where(z => z.IsEnabledConvert))
+            foreach (var item in this.FilesListView.SelectedItems.OfType<TextFileViewModel>().Where(z => z.IsEnabledConvert))
             {
                 _ = item.ConvertAsync(this.SelectedEncoding, this.ToNewFile);
             }

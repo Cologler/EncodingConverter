@@ -80,9 +80,9 @@
 
             <Grid HorizontalAlignment="Right"
                   Grid.Row="2">
-                <Button Content="Convert All"
+                <Button Content="Convert Selected"
                         Padding="4,1"
-                        Click="ConvertAllButton_Click"/>
+                        Click="ConvertSelectedButton_Click"/>
             </Grid>
         </Grid>
     </Grid>
