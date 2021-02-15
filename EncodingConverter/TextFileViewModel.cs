@@ -87,23 +87,35 @@ namespace EncodingConverter
             }
         }
 
-        public async Task ConvertAsync(Encoding targetEncoding)
+        public async Task ConvertAsync(Encoding targetEncoding, bool toNewFile)
         {
             if (targetEncoding is null)
                 throw new ArgumentNullException(nameof(targetEncoding));
             if (!this.IsEnabledConvert)
                 return;
+            if (targetEncoding == this.Encoding)
+                return;
+
             this.IsEnabledConvert = false;
             var path = this.Path;
             await Task.Run(() =>
             {
-                var newName = System.IO.Path.GetFileNameWithoutExtension(path);
-                newName += $".{targetEncoding.WebName.ToLower()}";
-                newName += System.IO.Path.GetExtension(path);
-                var newPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), newName);
-                using var reader = new StreamReader(this.Path, this.Encoding);
-                using var writer = new StreamWriter(newPath, false, targetEncoding);
-                writer.Write(reader.ReadToEnd());
+                var baseDir = System.IO.Path.GetDirectoryName(path);
+                var originName = System.IO.Path.GetFileNameWithoutExtension(path);
+                var originExt = System.IO.Path.GetExtension(path);
+                var newName = $"{originName}.{targetEncoding.WebName.ToLower()}{originExt}";
+                var newPath = System.IO.Path.Combine(baseDir, newName);
+                using (var reader = new StreamReader(this.Path, this.Encoding))
+                using (var writer = new StreamWriter(newPath, false, targetEncoding))
+                {
+                    writer.Write(reader.ReadToEnd());
+                }
+
+                if (!toNewFile)
+                {
+                    File.Move(path, System.IO.Path.Combine(baseDir, $"{originName}.origin{originExt}"), true);
+                    File.Move(newPath, path, false);
+                }
             });
             this.ConvertStatus = "Done";
         }

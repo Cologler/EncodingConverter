@@ -20,17 +20,29 @@
                   HorizontalAlignment="Right">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Text="Target Encoding"
-                           Margin="0,0,4,0"
-                           VerticalAlignment="Center" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Target Encoding"
+                               Margin="0,0,4,0"
+                               VerticalAlignment="Center" />
+                    <ComboBox x:Name="TargetEncoding"
+                              Grid.Column="1"
+                              Width="130"
+                              HorizontalAlignment="Left" />
+                </Grid>
 
-                <ComboBox x:Name="TargetEncoding"
+                <CheckBox Content="To New File"
+                          IsChecked="True" 
                           Grid.Column="1"
-                          Width="130"
-                          HorizontalAlignment="Left" />
+                          VerticalAlignment="Center"
+                          Margin="8,0,4,0"
+                          x:Name="ToNewFileCheckBox"/>
             </Grid>
 
             <ListView Grid.Row="1"
