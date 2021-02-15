@@ -13,6 +13,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <Grid Margin="0,0,0,4"
@@ -22,7 +23,7 @@
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Text="Convert to"
+                <TextBlock Text="Target Encoding"
                            Margin="0,0,4,0"
                            VerticalAlignment="Center" />
 
@@ -35,7 +36,8 @@
             <ListView Grid.Row="1"
                       DragDrop.Drop="ListView_Drop"
                       x:Name="FilesListView"
-                      AllowDrop="True">
+                      AllowDrop="True"
+                      Margin="0,0,0,4">
                 <ListView.View>
                     <GridView>
                         <GridView.Columns>
@@ -63,6 +65,13 @@
                     </GridView>
                 </ListView.View>
             </ListView>
+
+            <Grid HorizontalAlignment="Right"
+                  Grid.Row="2">
+                <Button Content="Convert All"
+                        Padding="4,1"
+                        Click="ConvertAllButton_Click"/>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

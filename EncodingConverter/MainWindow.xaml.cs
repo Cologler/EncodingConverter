@@ -57,11 +57,6 @@ namespace EncodingConverter
             }
         }
 
-        private async void SingleConvertButton_Click(object sender, RoutedEventArgs e)
-        {
-            await ((TextFileViewModel)((FrameworkElement)sender).DataContext).ConvertAsync(this.SelectedEncoding);
-        }
-
         private async void ListView_Drop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -75,5 +70,18 @@ namespace EncodingConverter
         }
 
         ObservableCollection<TextFileViewModel> Items { get; } = new ObservableCollection<TextFileViewModel>();
+
+        private async void SingleConvertButton_Click(object sender, RoutedEventArgs e)
+        {
+            await ((TextFileViewModel)((FrameworkElement)sender).DataContext).ConvertAsync(this.SelectedEncoding);
+        }
+
+        private void ConvertAllButton_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var item in this.Items.Where(z => z.IsEnabledConvert))
+            {
+                _ = item.ConvertAsync(this.SelectedEncoding);
+            }
+        }
     }
 }
