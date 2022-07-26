@@ -59,7 +59,7 @@
                             
                             <GridViewColumn Width="130"
                                             Header="Detected Encoding"
-                                            DisplayMemberBinding="{Binding EncodingName}" />
+                                            DisplayMemberBinding="{Binding DetectedEncodingName}" />
 
                             <GridViewColumn Width="100"
                                             Header="Convert">

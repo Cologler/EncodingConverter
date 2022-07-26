@@ -11,7 +11,7 @@ namespace EncodingConverter
 {
     class TextFileViewModel : INotifyPropertyChanged
     {
-        private string _encodingName;
+        private string _detectedEncodingName;
         private bool _isEnabledConvert;
         private string _convertStatus;
 
@@ -50,28 +50,28 @@ namespace EncodingConverter
 
             if (dr?.Detected?.Encoding is not null)
             {
-                this.EncodingName = dr.Detected.EncodingName;
-                this.Encoding = dr.Detected.Encoding;
+                this.DetectedEncodingName = dr.Detected.EncodingName;
+                this.DetectedEncoding = dr.Detected.Encoding;
                 this.IsEnabledConvert = true;
             }
         }
 
         public string Path { get; }
 
-        public string EncodingName
+        public string DetectedEncodingName
         {
-            get => this._encodingName;
+            get => this._detectedEncodingName;
             private set
             {
-                if (this._encodingName != value)
+                if (this._detectedEncodingName != value)
                 {
-                    this._encodingName = value;
+                    this._detectedEncodingName = value;
                     this.OnPropertyChanged();
                 }
             }
         }
 
-        public Encoding Encoding { get; private set; }
+        public Encoding DetectedEncoding { get; private set; }
 
         public string ConvertStatus
         {
@@ -105,7 +105,7 @@ namespace EncodingConverter
                 throw new ArgumentNullException(nameof(targetEncoding));
             if (!this.IsEnabledConvert)
                 return;
-            if (targetEncoding == this.Encoding)
+            if (targetEncoding == this.DetectedEncoding)
                 return;
 
             this.IsEnabledConvert = false;
@@ -121,7 +121,7 @@ namespace EncodingConverter
 
                 try
                 {
-                    using (var reader = new StreamReader(this.Path, this.Encoding))
+                    using (var reader = new StreamReader(this.Path, this.DetectedEncoding))
                     using (var writer = new StreamWriter(newPath, false, targetEncoding))
                     {
                         writer.Write(reader.ReadToEnd());

@@ -29,7 +29,7 @@ namespace EncodingConverter
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            ComboBoxItem selected = null;
+            ComboBoxItem? selected = null;
             var encodings = Encoding.GetEncodings().Select(z => z.GetEncoding());
             foreach (var encoding in encodings)
             {
