@@ -15,9 +15,9 @@ namespace EncodingConverter
         private bool _isEnabledConvert;
         private string _convertStatus;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = default)
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = default!)
         {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -32,11 +32,23 @@ namespace EncodingConverter
         {
             var dr = await Task.Run(() =>
             {
-                return CharsetDetector.DetectFromFile(this.Path);
+                try
+                {
+                    return CharsetDetector.DetectFromFile(this.Path);
+                } 
+                catch (IOException)
+                {
+                    // pass
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    // pass
+                }
+
+                return null;
             });
 
-            var encoding = dr.Detected?.Encoding;
-            if (encoding != null)
+            if (dr?.Detected?.Encoding is not null)
             {
                 this.EncodingName = dr.Detected.EncodingName;
                 this.Encoding = dr.Detected.Encoding;
@@ -98,26 +110,45 @@ namespace EncodingConverter
 
             this.IsEnabledConvert = false;
             var path = this.Path;
-            await Task.Run(() =>
+            
+            if (await Task.Run(() =>
             {
-                var baseDir = System.IO.Path.GetDirectoryName(path);
+                var baseDir = System.IO.Path.GetDirectoryName(path)!;
                 var originName = System.IO.Path.GetFileNameWithoutExtension(path);
                 var originExt = System.IO.Path.GetExtension(path);
                 var newName = $"{originName}.{targetEncoding.WebName.ToLower()}{originExt}";
                 var newPath = System.IO.Path.Combine(baseDir, newName);
-                using (var reader = new StreamReader(this.Path, this.Encoding))
-                using (var writer = new StreamWriter(newPath, false, targetEncoding))
+
+                try
                 {
-                    writer.Write(reader.ReadToEnd());
+                    using (var reader = new StreamReader(this.Path, this.Encoding))
+                    using (var writer = new StreamWriter(newPath, false, targetEncoding))
+                    {
+                        writer.Write(reader.ReadToEnd());
+                    }
+
+                    if (!toNewFile)
+                    {
+                        File.Move(path, System.IO.Path.Combine(baseDir, $"{originName}.origin{originExt}"), true);
+                        File.Move(newPath, path, false);
+                    }
+
+                    return true;
+                }
+                catch (IOException)
+                {
+                    // pass
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    // pass
                 }
 
-                if (!toNewFile)
-                {
-                    File.Move(path, System.IO.Path.Combine(baseDir, $"{originName}.origin{originExt}"), true);
-                    File.Move(newPath, path, false);
-                }
-            });
-            this.ConvertStatus = "Done";
+                return false;
+            }))
+            {
+                this.ConvertStatus = "Done";
+            }
         }
     }
 }
