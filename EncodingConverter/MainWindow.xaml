@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:EncodingConverter"
         mc:Ignorable="d"
-        Title="EncodingConverter"
+        Title="Encoding Converter"
         Height="450"
         Width="700">
     <Grid Margin="4">
@@ -34,7 +34,8 @@
                     <ComboBox x:Name="TargetEncoding"
                               Grid.Column="1"
                               Width="130"
-                              HorizontalAlignment="Left" />
+                              HorizontalAlignment="Left"
+                              DisplayMemberPath="EncodingName"/>
                 </Grid>
 
                 <CheckBox Content="To New File"

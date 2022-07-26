@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -23,39 +24,31 @@ namespace EncodingConverter
     /// </summary>
     public partial class MainWindow : Window
     {
+        static Encoding[] Encodings { get; }
+
+        static MainWindow()
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+            Encodings = Encoding.GetEncodings()
+                .Select(z => z.GetEncoding())
+                .OrderBy(x => x.EncodingName)
+                .ToArray();
+
+            Debug.Assert(Encodings.Contains(Encoding.UTF8));
+        }
+
         public MainWindow()
         {
             this.InitializeComponent();
 
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
-            ComboBoxItem? selected = null;
-            var encodings = Encoding.GetEncodings().Select(z => z.GetEncoding());
-            foreach (var encoding in encodings)
-            {
-                var encodingItem = new ComboBoxItem
-                {
-                    Content = encoding.EncodingName,
-                    DataContext = encoding
-                };
-                if (encoding == Encoding.UTF8)
-                {
-                    selected = encodingItem;
-                }
-                this.TargetEncoding.Items.Add(encodingItem);
-            }
-            this.TargetEncoding.SelectedItem = selected ?? this.TargetEncoding.Items.OfType<object>().FirstOrDefault();
+            this.TargetEncoding.ItemsSource = Encodings;
+            this.TargetEncoding.SelectedItem = Encoding.UTF8;
 
             this.FilesListView.ItemsSource = this.Items;
         }
 
-        public Encoding SelectedEncoding
-        {
-            get
-            {
-                return (Encoding)((ComboBoxItem)this.TargetEncoding.SelectedItem).DataContext;
-            }
-        }
+        public Encoding SelectedEncoding => (Encoding)this.TargetEncoding.SelectedItem;
 
         public bool ToNewFile => this.ToNewFileCheckBox.IsChecked != false;
 
