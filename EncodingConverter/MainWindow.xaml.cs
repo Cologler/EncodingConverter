@@ -111,5 +111,13 @@ namespace EncodingConverter
 
             pw.ShowDialog();
         }
+
+        private void Remove_Click(object sender, RoutedEventArgs e)
+        {
+            FilesListView.SelectedItems
+                .OfType<TextFileViewModel>()
+                .ToList()
+                .ForEach(x => this.Items.Remove(x));
+        }
     }
 }

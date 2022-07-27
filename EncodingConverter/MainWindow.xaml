@@ -53,6 +53,8 @@
                     <ContextMenu x:Key="ItemContextMenu">
                         <MenuItem Header="Preview Decoded"
                                   Click="PreviewDecoded_Click"/>
+                        <MenuItem Header="Remove"
+                                  Click="Remove_Click" />
                     </ContextMenu>
                 </ListView.Resources>
                 <ListView.ItemContainerStyle>
