@@ -33,9 +33,7 @@
                                VerticalAlignment="Center" />
                     <ComboBox x:Name="TargetEncoding"
                               Grid.Column="1"
-                              Width="130"
-                              HorizontalAlignment="Left"
-                              DisplayMemberPath="EncodingName"/>
+                              Style="{StaticResource EncodingsComboBoxBaseStyle}" />
                 </Grid>
 
                 <CheckBox Content="To New File"
@@ -51,6 +49,18 @@
                       x:Name="FilesListView"
                       AllowDrop="True"
                       Margin="0,0,0,4">
+                <ListView.Resources>
+                    <ContextMenu x:Key="ItemContextMenu">
+                        <MenuItem Header="Preview Decoded"
+                                  Click="PreviewDecoded_Click"/>
+                    </ContextMenu>
+                </ListView.Resources>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <Setter Property="ContextMenu"
+                                Value="{StaticResource ItemContextMenu}" />
+                    </Style>
+                </ListView.ItemContainerStyle>
                 <ListView.View>
                     <GridView>
                         <GridView.Columns>

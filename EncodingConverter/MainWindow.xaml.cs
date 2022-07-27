@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 using EncodingConverter.Models;
+using EncodingConverter.Windows;
 
 using UtfUnknown;
 
@@ -26,26 +27,12 @@ namespace EncodingConverter
     /// </summary>
     public partial class MainWindow : Window
     {
-        static Encoding[] Encodings { get; }
-
-        static MainWindow()
-        {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
-            Encodings = Encoding.GetEncodings()
-                .Select(z => z.GetEncoding())
-                .OrderBy(x => x.EncodingName)
-                .ToArray();
-
-            Debug.Assert(Encodings.Contains(Encoding.UTF8));
-        }
-
         public MainWindow()
         {
             this.InitializeComponent();
 
-            this.TargetEncoding.ItemsSource = Encodings;
-            this.TargetEncoding.SelectedItem = Encoding.UTF8;
+            this.TargetEncoding.ItemsSource = EncodingsManager.Encodings;
+            this.TargetEncoding.SelectedItem = EncodingsManager.DefaultEncoding;
 
             this.FilesListView.ItemsSource = this.Items;
         }
@@ -79,6 +66,50 @@ namespace EncodingConverter
             {
                 _ = item.ConvertAsync(this.SelectedEncoding, this.ToNewFile);
             }
+        }
+
+        bool TryHandleException(Exception exception)
+        {
+            if (exception is IOException)
+            {
+                MessageBox.Show(exception.Message);
+                return true;
+            }
+
+            if (exception is UnauthorizedAccessException)
+            {
+                MessageBox.Show(exception.Message);
+                return true;
+            }
+
+            return false;
+        }
+
+        private async void PreviewDecoded_Click(object sender, RoutedEventArgs e)
+        {
+            var svm = (TextFileViewModel)((FrameworkElement)sender).DataContext;
+
+            PreviewWindowViewModel pvm;
+            try
+            {
+                pvm = await svm.GetPreviewViewModelAsync();
+            }
+            catch (Exception exc) when (TryHandleException(exc))
+            {
+                return;
+            }
+
+            pvm.SelectedEncoding = svm.DetectedEncoding;
+
+            var pw = new PreviewWindow
+            {
+                Owner = this,
+                DataContext = pvm
+            };
+
+            pw.Title += $" ({svm.Path})";
+
+            pw.ShowDialog();
         }
     }
 }

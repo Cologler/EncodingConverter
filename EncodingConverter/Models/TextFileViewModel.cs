@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -71,7 +72,7 @@ namespace EncodingConverter.Models
             }
         }
 
-        public Encoding DetectedEncoding { get; private set; }
+        public Encoding? DetectedEncoding { get; private set; }
 
         public string ConvertStatus
         {
@@ -112,6 +113,7 @@ namespace EncodingConverter.Models
                 return;
             this.IsEnabledConvert = false;
 
+            Debug.Assert(sourceEncoding is not null);
             var path = this.Path;
 
             if (await Task.Run(() =>
@@ -153,5 +155,7 @@ namespace EncodingConverter.Models
                 this.ConvertStatus = "Done";
             }
         }
+
+        public async Task<PreviewWindowViewModel> GetPreviewViewModelAsync() => new(await File.ReadAllBytesAsync(this.Path));
     }
 }
