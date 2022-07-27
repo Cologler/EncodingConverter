@@ -14,6 +14,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <ComboBox Style="{StaticResource EncodingsComboBoxBaseStyle}"
@@ -26,5 +27,12 @@
                  IsReadOnly="True"
                  Text="{Binding DecodedText, Mode=OneWay}"
                  VerticalScrollBarVisibility="Auto" />
+
+        <Button Grid.Row="2"
+                Content="Choose This Encoding" 
+                HorizontalAlignment="Right"
+                Margin="0,4,0,0"
+                Padding="6,2"
+                Click="ChooseButton_Click"/>
     </Grid>
 </Window>

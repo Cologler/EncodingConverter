@@ -85,33 +85,39 @@ namespace EncodingConverter
 
         private async void PreviewDecoded_Click(object sender, RoutedEventArgs e)
         {
-            var svm = (TextFileViewModel)((FrameworkElement)sender).DataContext;
-            Debug.Assert(svm is not null);
+            var sourceViewModel = (TextFileViewModel)((FrameworkElement)sender).DataContext;
+            Debug.Assert(sourceViewModel is not null);
 
             byte[] fileContent;
             try
             {
-                fileContent = await File.ReadAllBytesAsync(svm.Path);
+                fileContent = await File.ReadAllBytesAsync(sourceViewModel.Path);
             }
             catch (Exception exc) when (TryHandleException(exc))
             {
                 return;
             }
 
-            var pvm = new PreviewWindowViewModel(fileContent)
+            var previewViewModel = new PreviewWindowViewModel(fileContent)
             {
-                SelectedEncoding = svm.DetectedEncoding
+                SelectedEncoding = sourceViewModel.SourceEncoding
             };
 
-            var pw = new PreviewWindow
+            var previewWindow = new PreviewWindow
             {
                 Owner = this,
-                DataContext = pvm
+                DataContext = previewViewModel
             };
 
-            pw.Title += $" ({svm.Path})";
+            previewWindow.Title += $" ({sourceViewModel.Path})";
 
-            pw.ShowDialog();
+            if (previewWindow.ShowDialog() == true)
+            {
+                Debug.Assert(
+                    previewViewModel.SelectedEncoding is not null || sourceViewModel.SourceEncoding is null, 
+                    "if source encoding not null, selected encoding would not be null.");
+                sourceViewModel.SourceEncoding = previewViewModel.SelectedEncoding;
+            }
         }
 
         private void Remove_Click(object sender, RoutedEventArgs e)
