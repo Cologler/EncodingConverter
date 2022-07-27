@@ -6,22 +6,17 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
+using PropertyChanged.SourceGenerator;
+
 using UtfUnknown;
 
 namespace EncodingConverter.Models
 {
-    class TextFileViewModel : INotifyPropertyChanged
+    partial class TextFileViewModel
     {
-        private string _detectedEncodingName;
-        private bool _isEnabledConvert;
-        private string _convertStatus;
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = default!)
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        [Notify] bool _isEnabledConvert;
+        [Notify] string _convertStatus;
+        [Notify] Encoding? _detectedEncoding;
 
         public TextFileViewModel(string path)
         {
@@ -51,7 +46,6 @@ namespace EncodingConverter.Models
 
             if (dr?.Detected?.Encoding is not null)
             {
-                this.DetectedEncodingName = dr.Detected.EncodingName;
                 this.DetectedEncoding = dr.Detected.Encoding;
                 this.IsEnabledConvert = true;
             }
@@ -59,46 +53,7 @@ namespace EncodingConverter.Models
 
         public string Path { get; }
 
-        public string DetectedEncodingName
-        {
-            get => this._detectedEncodingName;
-            private set
-            {
-                if (this._detectedEncodingName != value)
-                {
-                    this._detectedEncodingName = value;
-                    this.OnPropertyChanged();
-                }
-            }
-        }
-
-        public Encoding? DetectedEncoding { get; private set; }
-
-        public string ConvertStatus
-        {
-            get => this._convertStatus;
-            private set
-            {
-                if (this._convertStatus != value)
-                {
-                    this._convertStatus = value;
-                    this.OnPropertyChanged();
-                }
-            }
-        }
-
-        public bool IsEnabledConvert
-        {
-            get => this._isEnabledConvert;
-            private set
-            {
-                if (this._isEnabledConvert != value)
-                {
-                    this._isEnabledConvert = value;
-                    this.OnPropertyChanged();
-                }
-            }
-        }
+        public string DetectedEncodingName => this.DetectedEncoding?.EncodingName ?? string.Empty;
 
         public async Task ConvertAsync(Encoding targetEncoding, bool toNewFile)
         {
