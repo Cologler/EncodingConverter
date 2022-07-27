@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="Encoding Converter"
         Height="450"
-        Width="700">
+        Width="850">
     <Grid Margin="4">
         <Grid>
             <Grid.RowDefinitions>
@@ -33,7 +33,9 @@
                                VerticalAlignment="Center" />
                     <ComboBox x:Name="TargetEncoding"
                               Grid.Column="1"
-                              Style="{StaticResource EncodingsComboBoxBaseStyle}" />
+                              Style="{StaticResource EncodingsComboBoxBaseStyle}"
+                              ItemsSource="{x:Static local:EncodingsManager.Encodings}"
+                              SelectedItem="{x:Static local:EncodingsManager.DefaultEncoding}"/>
                 </Grid>
 
                 <CheckBox Content="To New File"
@@ -66,7 +68,7 @@
                 <ListView.View>
                     <GridView>
                         <GridView.Columns>
-                            <GridViewColumn Width="450"
+                            <GridViewColumn Width="490"
                                             Header="Path"
                                             DisplayMemberBinding="{Binding Path}" />
                             
@@ -74,7 +76,18 @@
                                             Header="Detected Encoding"
                                             DisplayMemberBinding="{Binding DetectedEncodingName}" />
 
-                            <GridViewColumn Width="100"
+                            <GridViewColumn Width="130"
+                                            Header="Use Encoding">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ComboBox ItemsSource="{x:Static local:EncodingsManager.Encodings}"
+                                                  SelectedItem="{Binding SourceEncoding, Mode=TwoWay}"
+                                                  DisplayMemberPath="EncodingName"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+
+                            <GridViewColumn Width="80"
                                             Header="Convert">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>

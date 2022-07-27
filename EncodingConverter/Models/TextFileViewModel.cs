@@ -17,6 +17,7 @@ namespace EncodingConverter.Models
         [Notify] bool _isEnabledConvert;
         [Notify] string _convertStatus;
         [Notify] Encoding? _detectedEncoding;
+        [Notify] Encoding? _sourceEncoding;
 
         public TextFileViewModel(string path)
         {
@@ -46,9 +47,14 @@ namespace EncodingConverter.Models
 
             if (dr?.Detected?.Encoding is not null)
             {
-                this.DetectedEncoding = dr.Detected.Encoding;
-                this.IsEnabledConvert = true;
+                this.SourceEncoding = this.DetectedEncoding = dr.Detected.Encoding;
             }
+            else
+            {
+                this.SourceEncoding = null;
+            }
+
+            this.IsEnabledConvert = true;
         }
 
         public string Path { get; }
@@ -60,8 +66,8 @@ namespace EncodingConverter.Models
             if (targetEncoding is null)
                 throw new ArgumentNullException(nameof(targetEncoding));
 
-            var sourceEncoding = this.DetectedEncoding;
-            if (targetEncoding == sourceEncoding)
+            var sourceEncoding = this.SourceEncoding;
+            if (sourceEncoding is null || targetEncoding == sourceEncoding)
                 return;
 
             if (!this.IsEnabledConvert)
@@ -110,7 +116,5 @@ namespace EncodingConverter.Models
                 this.ConvertStatus = "Done";
             }
         }
-
-        public async Task<PreviewWindowViewModel> GetPreviewViewModelAsync() => new(await File.ReadAllBytesAsync(this.Path));
     }
 }

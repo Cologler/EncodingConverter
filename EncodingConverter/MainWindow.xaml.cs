@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -30,9 +31,6 @@ namespace EncodingConverter
         public MainWindow()
         {
             this.InitializeComponent();
-
-            this.TargetEncoding.ItemsSource = EncodingsManager.Encodings;
-            this.TargetEncoding.SelectedItem = EncodingsManager.DefaultEncoding;
 
             this.FilesListView.ItemsSource = this.Items;
         }
@@ -88,18 +86,22 @@ namespace EncodingConverter
         private async void PreviewDecoded_Click(object sender, RoutedEventArgs e)
         {
             var svm = (TextFileViewModel)((FrameworkElement)sender).DataContext;
+            Debug.Assert(svm is not null);
 
-            PreviewWindowViewModel pvm;
+            byte[] fileContent;
             try
             {
-                pvm = await svm.GetPreviewViewModelAsync();
+                fileContent = await File.ReadAllBytesAsync(svm.Path);
             }
             catch (Exception exc) when (TryHandleException(exc))
             {
                 return;
             }
 
-            pvm.SelectedEncoding = svm.DetectedEncoding;
+            var pvm = new PreviewWindowViewModel(fileContent)
+            {
+                SelectedEncoding = svm.DetectedEncoding
+            };
 
             var pw = new PreviewWindow
             {
