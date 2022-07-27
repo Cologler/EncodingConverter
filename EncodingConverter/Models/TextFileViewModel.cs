@@ -45,9 +45,10 @@ namespace EncodingConverter.Models
                 return null;
             });
 
-            if (dr?.Detected?.Encoding is not null)
+            if (dr?.Detected?.Encoding is { } encoding)
             {
-                this.SourceEncoding = this.DetectedEncoding = dr.Detected.Encoding;
+                EncodingsManager.TryAddEncoding(encoding);
+                this.SourceEncoding = this.DetectedEncoding = encoding;
             }
             else
             {

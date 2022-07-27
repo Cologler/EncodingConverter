@@ -22,7 +22,7 @@ public partial class PreviewWindow : Window
     {
         InitializeComponent();
 
-        DecodeEncoding.ItemsSource = EncodingsManager.Encodings;
+        DecodeEncoding.ItemsSource = EncodingsManager.ObservableEncodings;
     }
 
     private void ChooseButton_Click(object sender, RoutedEventArgs e) => this.DialogResult = true;
