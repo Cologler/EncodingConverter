@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 using UtfUnknown;
 
-namespace EncodingConverter
+namespace EncodingConverter.Models
 {
     class TextFileViewModel : INotifyPropertyChanged
     {
@@ -35,7 +35,7 @@ namespace EncodingConverter
                 try
                 {
                     return CharsetDetector.DetectFromFile(this.Path);
-                } 
+                }
                 catch (IOException)
                 {
                     // pass
@@ -82,7 +82,7 @@ namespace EncodingConverter
                 {
                     this._convertStatus = value;
                     this.OnPropertyChanged();
-                }                
+                }
             }
         }
 
@@ -103,14 +103,17 @@ namespace EncodingConverter
         {
             if (targetEncoding is null)
                 throw new ArgumentNullException(nameof(targetEncoding));
-            if (!this.IsEnabledConvert)
-                return;
-            if (targetEncoding == this.DetectedEncoding)
+
+            var sourceEncoding = this.DetectedEncoding;
+            if (targetEncoding == sourceEncoding)
                 return;
 
+            if (!this.IsEnabledConvert)
+                return;
             this.IsEnabledConvert = false;
+
             var path = this.Path;
-            
+
             if (await Task.Run(() =>
             {
                 var baseDir = System.IO.Path.GetDirectoryName(path)!;
@@ -121,7 +124,7 @@ namespace EncodingConverter
 
                 try
                 {
-                    using (var reader = new StreamReader(this.Path, this.DetectedEncoding))
+                    using (var reader = new StreamReader(path, sourceEncoding))
                     using (var writer = new StreamWriter(newPath, false, targetEncoding))
                     {
                         writer.Write(reader.ReadToEnd());
