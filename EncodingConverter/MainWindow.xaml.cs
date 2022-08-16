@@ -120,6 +120,42 @@ namespace EncodingConverter
             }
         }
 
+        private async void PreviewEncodings_Click(object sender, RoutedEventArgs e)
+        {
+            var sourceViewModel = (TextFileViewModel)((FrameworkElement)sender).DataContext;
+            Debug.Assert(sourceViewModel is not null);
+
+            byte[] fileContent;
+            try
+            {
+                fileContent = await File.ReadAllBytesAsync(sourceViewModel.Path);
+            }
+            catch (Exception exc) when (TryHandleException(exc))
+            {
+                return;
+            }
+
+            var previewViewModel = new PreviewEncodingsWindowViewModel(fileContent);
+
+            previewViewModel.LoadEncodings();
+
+            var previewWindow = new PreviewEncodingsWindow
+            {
+                Owner = this,
+                DataContext = previewViewModel
+            };
+
+            previewWindow.Title += $" ({sourceViewModel.Path})";
+
+            if (previewWindow.ShowDialog() == true)
+            {
+                if (previewViewModel.SelectedPreviewItem?.Encoding is { } encoding)
+                {
+                    sourceViewModel.SourceEncoding = encoding;
+                }
+            }
+        }
+
         private void Remove_Click(object sender, RoutedEventArgs e)
         {
             FilesListView.SelectedItems

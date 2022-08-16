@@ -55,6 +55,8 @@
                     <ContextMenu x:Key="ItemContextMenu">
                         <MenuItem Header="Preview Decoded"
                                   Click="PreviewDecoded_Click"/>
+                        <MenuItem Header="Preview Encodings"
+                                  Click="PreviewEncodings_Click" />
                         <MenuItem Header="Remove"
                                   Click="Remove_Click" />
                     </ContextMenu>
