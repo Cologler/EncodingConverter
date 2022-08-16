@@ -11,15 +11,15 @@ namespace EncodingConverter.Models;
 
 internal partial class PreviewWindowViewModel
 {
-    private readonly byte[] _originalBytes;
+    private readonly DecodeSource _decodeSource;
     [Notify]
     private Encoding? _selectedEncoding;
     [Notify]
     private string _decodedText = "";
 
-    public PreviewWindowViewModel(byte[] originalBytes)
+    public PreviewWindowViewModel(DecodeSource decodeSource)
     {
-        this._originalBytes = originalBytes;
+        this._decodeSource = decodeSource;
     }
 
     void OnSelectedEncodingChanged(Encoding? oldValue, Encoding? newValue)
@@ -30,7 +30,7 @@ internal partial class PreviewWindowViewModel
         }
         else
         {
-            this.DecodedText = newValue.GetString(this._originalBytes);
+            this.DecodedText = this._decodeSource.Decode(newValue);
         }
     }
 }

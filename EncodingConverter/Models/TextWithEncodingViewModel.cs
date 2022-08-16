@@ -4,12 +4,12 @@ namespace EncodingConverter.Models;
 
 class TextWithEncodingViewModel
 {
-    readonly byte[] _originalBytes;
+    readonly DecodeSource _decodeSource;
     string? _decodedText;
 
-    public TextWithEncodingViewModel(byte[] originalBytes, Encoding encoding, bool isDetectedEncoding)
+    public TextWithEncodingViewModel(DecodeSource decodeSource, Encoding encoding, bool isDetectedEncoding)
     {
-        this._originalBytes = originalBytes;
+        this._decodeSource = decodeSource;
         this.Encoding = encoding;
         this.IsDetectedEncoding = isDetectedEncoding;
     }
@@ -20,5 +20,5 @@ class TextWithEncodingViewModel
 
     public string EncodingName => Encoding.EncodingName;
 
-    public string DecodedText => _decodedText ??= this.Encoding.GetString(this._originalBytes);
+    public string DecodedText => _decodedText ??= this._decodeSource.Decode(this.Encoding);
 }

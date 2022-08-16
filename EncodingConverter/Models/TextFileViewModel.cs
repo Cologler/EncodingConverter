@@ -22,30 +22,29 @@ namespace EncodingConverter.Models
         public TextFileViewModel(string path)
         {
             this.Path = path;
-            this.ConvertStatus = "Convert";
+            this.ConvertStatus = string.Empty;
         }
 
-        public async Task DetectAsync()
+        public async Task LoadFileAsync()
         {
-            var dr = await Task.Run(() =>
+            byte[]? fileContent;
+            try
             {
-                try
-                {
-                    return CharsetDetector.DetectFromFile(this.Path);
-                }
-                catch (IOException)
-                {
-                    // pass
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    // pass
-                }
+                fileContent = await File.ReadAllBytesAsync(this.Path);
+            }
+            catch (Exception exc)
+            {
+                this.ConvertStatus = "Error";
+                this.LoadFileException = exc;
+                // pass
+                return;
+            }
 
-                return null;
-            });
+            this.DecodeSource = new(fileContent);
 
-            if (dr?.Detected?.Encoding is { } encoding)
+            var result = this.DecodeSource.DetectEncodings();
+
+            if (result.Detected?.Encoding is { } encoding)
             {
                 EncodingsManager.TryAddEncoding(encoding);
                 this.SourceEncoding = this.DetectedEncoding = encoding;
@@ -55,10 +54,15 @@ namespace EncodingConverter.Models
                 this.SourceEncoding = null;
             }
 
+            this.ConvertStatus = "Convert";
             this.IsEnabledConvert = true;
         }
 
         public string Path { get; }
+
+        public DecodeSource? DecodeSource { get; private set; }
+
+        public Exception LoadFileException { get; private set; }
 
         public string DetectedEncodingName => this.DetectedEncoding?.EncodingName ?? string.Empty;
 

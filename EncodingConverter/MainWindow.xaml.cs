@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -47,7 +48,18 @@ namespace EncodingConverter
                 var paths = (string[])e.Data.GetData(DataFormats.FileDrop);
                 var vms = paths.Where(z => File.Exists(z)).Select(z => new TextFileViewModel(z)).ToList();
                 vms.ForEach(this.Items.Add);
-                await Task.WhenAll(vms.Select(z => z.DetectAsync()).ToArray());
+
+                await Task.WhenAll(vms.Select(z => z.LoadFileAsync()).ToArray());
+
+                var withErrors = vms
+                    .Where(x => x.LoadFileException is not null)
+                    .ToList();
+
+                if (withErrors.Any())
+                {
+                    var nl = Environment.NewLine;
+                    MessageBox.Show(string.Join(nl, withErrors.Select(x => $"Unable read file {x.Path}:{nl}{x.LoadFileException.Message}{nl}")));
+                }
             }
         }
 
@@ -66,39 +78,14 @@ namespace EncodingConverter
             }
         }
 
-        bool TryHandleException(Exception exception)
-        {
-            if (exception is IOException)
-            {
-                MessageBox.Show(exception.Message);
-                return true;
-            }
-
-            if (exception is UnauthorizedAccessException)
-            {
-                MessageBox.Show(exception.Message);
-                return true;
-            }
-
-            return false;
-        }
-
-        private async void PreviewDecoded_Click(object sender, RoutedEventArgs e)
+        private void PreviewDecoded_Click(object sender, RoutedEventArgs e)
         {
             var sourceViewModel = (TextFileViewModel)((FrameworkElement)sender).DataContext;
-            Debug.Assert(sourceViewModel is not null);
 
-            byte[] fileContent;
-            try
-            {
-                fileContent = await File.ReadAllBytesAsync(sourceViewModel.Path);
-            }
-            catch (Exception exc) when (TryHandleException(exc))
-            {
+            if (sourceViewModel.DecodeSource is null)
                 return;
-            }
 
-            var previewViewModel = new PreviewWindowViewModel(fileContent)
+            var previewViewModel = new PreviewWindowViewModel(sourceViewModel.DecodeSource)
             {
                 SelectedEncoding = sourceViewModel.SourceEncoding
             };
@@ -120,22 +107,14 @@ namespace EncodingConverter
             }
         }
 
-        private async void PreviewEncodings_Click(object sender, RoutedEventArgs e)
+        private void PreviewEncodings_Click(object sender, RoutedEventArgs e)
         {
             var sourceViewModel = (TextFileViewModel)((FrameworkElement)sender).DataContext;
-            Debug.Assert(sourceViewModel is not null);
 
-            byte[] fileContent;
-            try
-            {
-                fileContent = await File.ReadAllBytesAsync(sourceViewModel.Path);
-            }
-            catch (Exception exc) when (TryHandleException(exc))
-            {
+            if (sourceViewModel.DecodeSource is null)
                 return;
-            }
 
-            var previewViewModel = new PreviewEncodingsWindowViewModel(fileContent);
+            var previewViewModel = new PreviewEncodingsWindowViewModel(sourceViewModel.DecodeSource);
 
             previewViewModel.LoadEncodings();
 
